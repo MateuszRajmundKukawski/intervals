@@ -1,26 +1,22 @@
-from LatLon import LatLon, Latitude, Longitude
-from xml.dom import minidom
-from datetime import datetime
-import time
-import sys
-import os
+# -*- coding: utf-8
 
 import matplotlib
-
 matplotlib.use('Agg')
+import os
+from datetime import datetime
+from LatLon import LatLon, Latitude, Longitude
 import matplotlib.pyplot as plt
 import numpy as np
-import os
+from xml.dom import minidom
 
 
-accuracyLiczbaProbek = 8  # ile kolejnych probek ma byc wieksze (dla szukania startu) badz mniejsze (dla stopu) od probki aktualnie iterowanej
+CCURACY_LICZBA_PROBEK = 8  # ile kolejnych probek ma byc wieksze (dla szukania startu) badz mniejsze (dla stopu) od probki aktualnie iterowanej
 accuracyPaceDiffForIntervalSearch = 1  # jakiej roznicy tempa (min / km) ma szukac
 pointDistanceMinimalBetweenInterwals = 10  # dla ilu kolejnych punktow olewac start / stop interwalu (jezeli jest 'dlugi rozped')
 filterOrder = 5  # liczba probek do usrednienia, dla latwiejszego wykrywania startu / stopu
 # usredniam dane z x probek, przebieg robi sie mniej poszarpany, na wykresie sa wartosci oryginalne
 wiek = 30
 zakresyTetnaProcenty = [54, 63, 73, 81, 91, 100]
-zakresyTetna = []
 # zakresyTetna = [40, 126, 138, 152, 163, 177, 190]
 ZAKRESY_TETNA_KOLORY = {'0': 'grey',
                       '1': 'lightgreen',
@@ -32,12 +28,16 @@ ZAKRESY_TETNA_KOLORY = {'0': 'grey',
 
 
 def obliczZakresyTetna(wiek):
-    tetnoMax = float(220 - wiek)
+    zakresyTetna = []
+
+    # jak chesz float w wyniku to wystarczy dodać .
+    tetnoMax = 220. - wiek
     tetnoMin = 40
     zakresyTetna.append(tetnoMin)
     for zakres in zakresyTetnaProcenty:
-        tetnoTemp = int(float(zakres) / 100 * tetnoMax)
+        tetnoTemp = int(zakres / 100. * tetnoMax)
         zakresyTetna.append(tetnoTemp)
+    return zakresyTetna
 
 
 def parseTraining(fileName):
@@ -76,10 +76,10 @@ def szukajInterwalow(wykresTableY):
     stopInterwalu = []
     startFound = 0
     for i, tempo in enumerate(wykresTableY):
-        if i > accuracyLiczbaProbek:
+        if i > CCURACY_LICZBA_PROBEK:
             if startFound == 0:
                 licznik = 0
-                for j in range(1, accuracyLiczbaProbek):  # szuka startu interwalu
+                for j in range(1, CCURACY_LICZBA_PROBEK):  # szuka startu interwalu
                     paceTemp = wykresTableY[i] - wykresTableY[i - j]
                     if paceTemp < -accuracyPaceDiffForIntervalSearch:
                         licznik += 1
@@ -87,7 +87,7 @@ def szukajInterwalow(wykresTableY):
                         break
                     paceTemp = 0
                 if licznik == (
-                    accuracyLiczbaProbek - 1):  # sprawdza czy kolejnych 'accuracyLiczbaProbek' probek ma tempo o 'accuracyPaceDiffForIntervalSearch' wieksze od probki bazowej
+                    CCURACY_LICZBA_PROBEK - 1):  # sprawdza czy kolejnych 'CCURACY_LICZBA_PROBEK' probek ma tempo o 'accuracyPaceDiffForIntervalSearch' wieksze od probki bazowej
                     if len(startInterwalu) != 0:
                         if (i - startInterwalu[len(
                                 startInterwalu) - 1]) > pointDistanceMinimalBetweenInterwals:  # sprawdza czy nie znalazl kolejnego punktu bezposrednio obok poprzedniego
@@ -98,7 +98,7 @@ def szukajInterwalow(wykresTableY):
                         startFound = 1  # flaga- mozna zaczac szukanie konca interwalu
             if startFound == 1:
                 licznik = 0
-                for j in range(1, accuracyLiczbaProbek):  # szuka stopu interwalu
+                for j in range(1, CCURACY_LICZBA_PROBEK):  # szuka stopu interwalu
                     paceTemp = wykresTableY[i] - wykresTableY[i - j]
                     if paceTemp > accuracyPaceDiffForIntervalSearch:
                         licznik += 1
@@ -106,7 +106,7 @@ def szukajInterwalow(wykresTableY):
                         break
                     paceTemp = 0
                 if licznik == (
-                    accuracyLiczbaProbek - 1):  # sprawdza czy kolejnych 'accuracyLiczbaProbek' probek ma tempo o 'accuracyPaceDiffForIntervalSearch' mniejsze od probki bazowej
+                    CCURACY_LICZBA_PROBEK - 1):  # sprawdza czy kolejnych 'CCURACY_LICZBA_PROBEK' probek ma tempo o 'accuracyPaceDiffForIntervalSearch' mniejsze od probki bazowej
                     if len(stopInterwalu) != 0:
                         if (i - stopInterwalu[len(
                                 stopInterwalu) - 1]) > pointDistanceMinimalBetweenInterwals:  # sprawdza czy nie znalazl kolejnego punktu bezposrednio obok poprzedniego
@@ -149,7 +149,7 @@ def obliczPolozenie(listaWspol):
     return wykresTableX, wykresTableY, totalDistance, czasy, tetno
 
 
-def plotPace(wykresTableX, wykresTableY, paceAverageTable, tetno, file_name):
+def plotPace(wykresTableX, wykresTableY, paceAverageTable, tetno, file_name, zakresyTetna):
     plot_title = os.path.basename(file_name)
     if sum(tetno) / len(
             tetno):  # sprawdza czy wartosci tetna nie sa zerami(zera sa wpisywane, jezeli w .gpx nie ma tagow hr)
@@ -234,18 +234,19 @@ def averagingFilter(wykresTableY):
 
 
 def get_data(output_dir, fileName):
+    # wiek
     print_list = []
     # fileName = sys.argv[1]
     # accuracyPaceDiffForIntervalSearch = sys.argv[2]
-    # accuracyLiczbaProbek = sys.argv[3]
-    obliczZakresyTetna(wiek)
+    # CCURACY_LICZBA_PROBEK = sys.argv[3]
+    zakresyTetna = obliczZakresyTetna(wiek)
     listaWspol = parseTraining(fileName)
     wykresTableX, wykresTableY, totalDistance, czasy, tetno = obliczPolozenie(listaWspol)
     wykresTableYAverage = averagingFilter(wykresTableY)
     startInterwalu, stopInterwalu = szukajInterwalow(wykresTableYAverage)
     paceAverageTable = []
     print_list.append('\n_-_-_-_-_- INTERVALS _-_-_-_-_-')
-    print '\n_-_-_-_-_- INTERVALS _-_-_-_-_-'
+    print print_list[-1]  #'\n_-_-_-_-_- INTERVALS _-_-_-_-_-'
     for i in range(0, len(startInterwalu)):
         element = []
         distanceStart = wykresTableX[startInterwalu[i] + int(filterOrder / 2) + 2]
@@ -263,34 +264,34 @@ def get_data(output_dir, fileName):
                    startInterwalu[i] + int(filterOrder / 2) + 2, stopInterwalu[i] + int(filterOrder / 2)]
         paceAverageTable.append(element)
         print_list.append('\n')
-        print '\n'
+        print print_list[-1]  #'\n'
         print_list.append('Point number:\t %s' % int(startInterwalu[i] + int(filterOrder / 2)))
-        print 'Point number:\t %s' % int(startInterwalu[i] + int(filterOrder / 2))
+        print print_list[-1]  #'Point number:\t %s' % int(startInterwalu[i] + int(filterOrder / 2))
         print_list.append('Distance start:\t %.2f' % distanceStart)
-        print 'Distance start:\t %.2f' % distanceStart
+        print print_list[-1]  #'Distance start:\t %.2f' % distanceStart
         print_list.append('Distance stop:\t %.2f' % distanceStop)
-        print 'Distance stop:\t %.2f' % distanceStop
+        print print_list[-1]  #'Distance stop:\t %.2f' % distanceStop
         print_list.append('Distance:\t %.2f' % (distanceStop - distanceStart))
-        print 'Distance:\t %.2f' % (distanceStop - distanceStart)
+        print print_list[-1]  #'Distance:\t %.2f' % (distanceStop - distanceStart)
         print_list.append('Pace average:\t %s' % paceAverageString)
-        print 'Pace average:\t %s' % paceAverageString
+        print print_list[-1]  #'Pace average:\t %s' % paceAverageString
         print_list.append('\n_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-')
-        print '\n_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-'
+        print print_list[-1]  #'\n_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-'
     print_list.append('\nTotal distance:\t %.2f\n' % totalDistance)
-    print '\nTotal distance:\t %.2f\n' % totalDistance
-    # print len(startInterwalu)
+    print print_list[-1]  #'\nTotal distance:\t %.2f\n' % totalDistance
+    # print print_list[-1]  #len(startInterwalu)
 
-    tetnoZakresDict = plotPace(wykresTableX, wykresTableY, paceAverageTable, tetno, fileName)
+    tetnoZakresDict = plotPace(wykresTableX, wykresTableY, paceAverageTable, tetno, fileName, zakresyTetna)
     if tetnoZakresDict is not None:
-        print '_-_-_-_-_- PULSE ZONES _-_-_-_-_-\n'
         print_list.append('_-_-_-_-_- PULSE ZONES _-_-_-_-_-\n')
+        print print_list[-1]  #'_-_-_-_-_- PULSE ZONES _-_-_-_-_-\n'
         for i, x in enumerate(tetnoZakresDict):
             tempText = 'Zakres' + str(i) + ': ' + str(int(tetnoZakresDict[x])) + ' %'
-            print tempText
+            print print_list[-1]  #tempText
             print_list.append(tempText)
-            # print 'Zakres%i: %.1f\x25' % (x, tetnoZakresDict[x])
+            # print print_list[-1]  #'Zakres%i: %.1f\x25' % (x, tetnoZakresDict[x])
         print_list.append('\n_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-')
-        print '\n_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-'
+        print print_list[-1]  #'\n_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-'
 
     # plt.plot(wykresTableYAvrage)
     # plt.gca().invert_yaxis()
@@ -306,7 +307,7 @@ if __name__ == '__main__':
     get_data(".", fileName)
     # # fileName = sys.argv[1]
     # # accuracyPaceDiffForIntervalSearch = sys.argv[2]
-    # # accuracyLiczbaProbek = sys.argv[3]
+    # # CCURACY_LICZBA_PROBEK = sys.argv[3]
     # obliczZakresyTetna(wiek)
     # listaWspol = parseTraining(fileName)
     # wykresTableX, wykresTableY, totalDistance, czasy, tetno = obliczPolozenie(listaWspol)
