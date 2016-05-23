@@ -13,8 +13,9 @@ print STATIC_DIR
 #app = Flask(__name__, static_url_path=sup)
 
 # static_url_path="static", static_folder="static"
-app = Flask(__name__, static_folder=STATIC_DIR, static_url_path=STATIC_DIR)
-# app = Flask(__name__, static_folder=STATIC_DIR)
+
+# app = Flask(__name__, static_folder=STATIC_DIR, static_url_path=STATIC_DIR)
+app = Flask(__name__, static_folder=STATIC_DIR)
 app.secret_key = 's3cr3t'
 
 
