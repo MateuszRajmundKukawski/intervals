@@ -5,13 +5,16 @@ from intervals.tempo import get_data
 
 from intervals.forms import GpxForm
 
-BASE_DIR = os.path.dirname(os.path.dirname(__file__))
-UPLOADS_DIR = os.path.join(BASE_DIR, 'intervals/uploads/')
-STATIC_DIR = os.path.join(BASE_DIR, 'intervals/static/')
+BASE_DIR = os.path.dirname(os.path.os.path.abspath(__file__))
+UPLOADS_DIR = os.path.join(BASE_DIR, 'uploads/')
+STATIC_DIR = os.path.join(BASE_DIR, 'static/')
 sup = STATIC_DIR
+print STATIC_DIR
 #app = Flask(__name__, static_url_path=sup)
 
 # static_url_path="static", static_folder="static"
+
+# app = Flask(__name__, static_folder=STATIC_DIR, static_url_path=STATIC_DIR)
 app = Flask(__name__, static_folder=STATIC_DIR)
 app.secret_key = 's3cr3t'
 
@@ -47,6 +50,6 @@ def make_plots():
     else:
         return render_template('plots.html')
 
-#if __name__ == '__main__':
-#    app.debug = True
-#    app.run()
+if __name__ == '__main__':
+   app.debug = True
+   app.run()
