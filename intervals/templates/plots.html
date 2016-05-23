@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>PLOTS</title>
+</head>
+<body>
+{% if plot_path %}
+<img src="{{ url_for('static', filename=plot_path) }}" alt="6666">
+{% for row in data_list %}
+<br> {{ row }}
+{% endfor %}
+{% endif %}
+<br>
+ <a href="/upload">Return to upload</a>
+</body>
+</html>

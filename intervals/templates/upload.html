@@ -1,0 +1,19 @@
+<!doctype html>
+<title>Hello from Flask</title>
+{% if name %}
+  <h1>Hello {{ name }}!</h1>
+{% else %}
+  <form action="/upload/" method="POST" enctype="multipart/form-data">
+    {{ form.hidden_tag() }}
+    {{ form.gpx }}
+    <input type="submit">
+  </form>
+{% if filename %}
+<h3>Filename {{ filename }}</h3>
+<form action="/run/" method="POST">
+ <input type="hidden" name=fname value={{ filename }} />
+ <input type="submit" value='RUN'>
+</form>
+
+{% endif %}
+{% endif %}
