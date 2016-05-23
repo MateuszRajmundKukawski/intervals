@@ -22,7 +22,7 @@ wiek = 30
 zakresyTetnaProcenty = [54, 63, 73, 81, 91, 100]
 zakresyTetna = []
 # zakresyTetna = [40, 126, 138, 152, 163, 177, 190]
-zakresyTetnaKolory = {'0': 'grey',
+ZAKRESY_TETNA_KOLORY = {'0': 'grey',
                       '1': 'lightgreen',
                       '2': 'darkgreen',
                       '3': 'yellow',
@@ -182,8 +182,8 @@ def plotPace(wykresTableX, wykresTableY, paceAverageTable, tetno, file_name):
         y1 = np.asarray(tetnoZakres)
         for i in range(0, 6):
             labelTemp = str(zakresyTetna[i]) + ':' + str(zakresyTetna[i + 1])
-            plt.fill_between(x, y, where=y1 == i, facecolor=zakresyTetnaKolory[str(i)], alpha=1, interpolate=True)
-            plt.axhline(zakresyTetna[i], color=zakresyTetnaKolory[str(i)], lw=5, alpha=0.8, label=labelTemp)
+            plt.fill_between(x, y, where=y1 == i, facecolor=ZAKRESY_TETNA_KOLORY[str(i)], alpha=1, interpolate=True)
+            plt.axhline(zakresyTetna[i], color=ZAKRESY_TETNA_KOLORY[str(i)], lw=5, alpha=0.8, label=labelTemp)
         plt.legend(bbox_to_anchor=(1, 1), loc=2, borderaxespad=0.)
         tetnoZakresDict = dict([(x, tetnoZakres.count(x)) for x in tetnoZakres])
         for x in tetnoZakresDict:
