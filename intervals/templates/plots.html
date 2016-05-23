@@ -6,7 +6,7 @@
 </head>
 <body>
 {% if plot_path %}
-<img src="{{ url_for('static', filename=plot_path) }}" alt="6666">
+<img src="{{ url_for('static', filename=plot_path) }}" alt="{{ url_for('static', filename=plot_path) }}">
 {% for row in data_list %}
 <br> {{ row }}
 {% endfor %}
