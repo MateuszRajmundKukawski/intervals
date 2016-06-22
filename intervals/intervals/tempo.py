@@ -12,11 +12,11 @@ from xml.dom import minidom
 
 CCURACY_LICZBA_PROBEK = 8  # ile kolejnych probek ma byc wieksze (dla szukania startu) badz mniejsze (dla stopu) od probki aktualnie iterowanej
 accuracyPaceDiffForIntervalSearch = 1  # jakiej roznicy tempa (min / km) ma szukac
-pointDistanceMinimalBetweenInterwals = 10  # dla ilu kolejnych punktow olewac start / stop interwalu (jezeli jest 'dlugi rozped')
-filterOrder = 5  # liczba probek do usrednienia, dla latwiejszego wykrywania startu / stopu
+point_distance_minimal_between_interwalsS = 10  # dla ilu kolejnych punktow olewac start / stop interwalu (jezeli jest 'dlugi rozped')
+filter_orderS = 5  # liczba probek do usrednienia, dla latwiejszego wykrywania startu / stopu
 # usredniam dane z x probek, przebieg robi sie mniej poszarpany, na wykresie sa wartosci oryginalne
-wiek = 30
-zakresyTetnaProcenty = [54, 63, 73, 81, 91, 100]
+wiekS = 30
+zakresyTetnaProcentyS = [54, 63, 73, 81, 91, 100]
 # zakresyTetna = [40, 126, 138, 152, 163, 177, 190]
 ZAKRESY_TETNA_KOLORY = {'0': 'grey',
                       '1': 'lightgreen',
@@ -27,7 +27,7 @@ ZAKRESY_TETNA_KOLORY = {'0': 'grey',
                       }
 
 
-def obliczZakresyTetna(wiek):
+def obliczZakresyTetna(wiek, zakresyTetnaProcenty):
     zakresyTetna = []
 
     # jak chesz float w wyniku to wystarczy dodać .
@@ -71,26 +71,26 @@ def parseTraining(fileName):
     return listaPkt
 
 
-def szukajInterwalow(wykresTableY):
+def szukajInterwalow(wykresTableY, ccuracy_liczba_probek, accuracy_pace_diff_for_interval_search, point_distance_minimal_between_interwals):
     startInterwalu = []
     stopInterwalu = []
     startFound = 0
     for i, tempo in enumerate(wykresTableY):
-        if i > CCURACY_LICZBA_PROBEK:
+        if i > ccuracy_liczba_probek:
             if startFound == 0:
                 licznik = 0
-                for j in range(1, CCURACY_LICZBA_PROBEK):  # szuka startu interwalu
+                for j in range(1, ccuracy_liczba_probek):  # szuka startu interwalu
                     paceTemp = wykresTableY[i] - wykresTableY[i - j]
-                    if paceTemp < -accuracyPaceDiffForIntervalSearch:
+                    if paceTemp < -accuracy_pace_diff_for_interval_search:
                         licznik += 1
                     else:
                         break
                     paceTemp = 0
                 if licznik == (
-                    CCURACY_LICZBA_PROBEK - 1):  # sprawdza czy kolejnych 'CCURACY_LICZBA_PROBEK' probek ma tempo o 'accuracyPaceDiffForIntervalSearch' wieksze od probki bazowej
+                    ccuracy_liczba_probek - 1):  # sprawdza czy kolejnych 'ccuracy_liczba_probek' probek ma tempo o 'accuracy_pace_diff_for_interval_search' wieksze od probki bazowej
                     if len(startInterwalu) != 0:
                         if (i - startInterwalu[len(
-                                startInterwalu) - 1]) > pointDistanceMinimalBetweenInterwals:  # sprawdza czy nie znalazl kolejnego punktu bezposrednio obok poprzedniego
+                                startInterwalu) - 1]) > point_distance_minimal_between_interwals:  # sprawdza czy nie znalazl kolejnego punktu bezposrednio obok poprzedniego
                             startInterwalu.append(i)
                             startFound = 1  # flaga- mozna zaczac szukanie konca interwalu
                     else:
@@ -98,18 +98,18 @@ def szukajInterwalow(wykresTableY):
                         startFound = 1  # flaga- mozna zaczac szukanie konca interwalu
             if startFound == 1:
                 licznik = 0
-                for j in range(1, CCURACY_LICZBA_PROBEK):  # szuka stopu interwalu
+                for j in range(1, ccuracy_liczba_probek):  # szuka stopu interwalu
                     paceTemp = wykresTableY[i] - wykresTableY[i - j]
-                    if paceTemp > accuracyPaceDiffForIntervalSearch:
+                    if paceTemp > accuracy_pace_diff_for_interval_search:
                         licznik += 1
                     else:
                         break
                     paceTemp = 0
                 if licznik == (
-                    CCURACY_LICZBA_PROBEK - 1):  # sprawdza czy kolejnych 'CCURACY_LICZBA_PROBEK' probek ma tempo o 'accuracyPaceDiffForIntervalSearch' mniejsze od probki bazowej
+                    ccuracy_liczba_probek - 1):  # sprawdza czy kolejnych 'ccuracy_liczba_probek' probek ma tempo o 'accuracy_pace_diff_for_interval_search' mniejsze od probki bazowej
                     if len(stopInterwalu) != 0:
                         if (i - stopInterwalu[len(
-                                stopInterwalu) - 1]) > pointDistanceMinimalBetweenInterwals:  # sprawdza czy nie znalazl kolejnego punktu bezposrednio obok poprzedniego
+                                stopInterwalu) - 1]) > point_distance_minimal_between_interwals:  # sprawdza czy nie znalazl kolejnego punktu bezposrednio obok poprzedniego
                             stopInterwalu.append(i)
                             startFound = 0
                     else:
@@ -221,38 +221,47 @@ def plotPace(wykresTableX, wykresTableY, paceAverageTable, tetno, file_name, zak
         # plt.show()
 
 
-def averagingFilter(wykresTableY):
+def averagingFilter(wykresTableY, filter_order):
     wykresTableYAverage = []
     for i, tempo in enumerate(wykresTableY):
-        if i > int(filterOrder / 2) and i < int(len(wykresTableY) - int(filterOrder / 2)):
+        if i > int(filter_order / 2) and i < int(len(wykresTableY) - int(filter_order / 2)):
             suma = 0
-            for j in range(int((-1) * (filterOrder / 2)), int(filterOrder / 2 + 1)):
+            for j in range(int((-1) * (filter_order / 2)), int(filter_order / 2 + 1)):
                 suma += wykresTableY[i + j]
-            elAver = suma / filterOrder
+            elAver = suma / filter_order
             wykresTableYAverage.append(elAver)
     return wykresTableYAverage
 
 
-def get_data(output_dir, fileName):
+def get_data(
+        output_dir,
+        fileName,
+        ccuracy_liczba_probek,
+        accuracy_pace_diff_for_interval_search,
+        point_distance_minimal_between_interwals,
+        filter_order,
+        wiek,
+        zakresyTetnaProcenty
+):
     # wiek
     print_list = []
     # fileName = sys.argv[1]
-    # accuracyPaceDiffForIntervalSearch = sys.argv[2]
-    # CCURACY_LICZBA_PROBEK = sys.argv[3]
-    zakresyTetna = obliczZakresyTetna(wiek)
+    # accuracy_pace_diff_for_interval_search = sys.argv[2]
+    # ccuracy_liczba_probek = sys.argv[3]
+    zakresyTetna = obliczZakresyTetna(wiek, zakresyTetnaProcenty)
     listaWspol = parseTraining(fileName)
     wykresTableX, wykresTableY, totalDistance, czasy, tetno = obliczPolozenie(listaWspol)
-    wykresTableYAverage = averagingFilter(wykresTableY)
-    startInterwalu, stopInterwalu = szukajInterwalow(wykresTableYAverage)
+    wykresTableYAverage = averagingFilter(wykresTableY, filter_order)
+    startInterwalu, stopInterwalu = szukajInterwalow(wykresTableYAverage, ccuracy_liczba_probek, accuracy_pace_diff_for_interval_search, point_distance_minimal_between_interwals)
     paceAverageTable = []
     print_list.append('\n_-_-_-_-_- INTERVALS _-_-_-_-_-')
     print print_list[-1]  #'\n_-_-_-_-_- INTERVALS _-_-_-_-_-'
     for i in range(0, len(startInterwalu)):
         element = []
-        distanceStart = wykresTableX[startInterwalu[i] + int(filterOrder / 2) + 2]
-        distanceStop = wykresTableX[stopInterwalu[i] - int(filterOrder / 2)]
-        czasStart = czasy[startInterwalu[i] + int(filterOrder / 2) + 2]
-        czasStop = czasy[stopInterwalu[i] - int(filterOrder / 2)]
+        distanceStart = wykresTableX[startInterwalu[i] + int(filter_order / 2) + 2]
+        distanceStop = wykresTableX[stopInterwalu[i] - int(filter_order / 2)]
+        czasStart = czasy[startInterwalu[i] + int(filter_order / 2) + 2]
+        czasStop = czasy[stopInterwalu[i] - int(filter_order / 2)]
         czasDiffPaceAverage = czasStop - czasStart
         paceAverage = (czasDiffPaceAverage.total_seconds() / 60) / (distanceStop - distanceStart)
         paceTempStr = int((paceAverage - int(paceAverage)) * 60)
@@ -261,12 +270,12 @@ def get_data(output_dir, fileName):
         else:
             paceAverageString = str(int(paceAverage)) + ':' + str(paceTempStr)
         element = [distanceStart, distanceStop, paceAverage, paceAverageString,
-                   startInterwalu[i] + int(filterOrder / 2) + 2, stopInterwalu[i] + int(filterOrder / 2)]
+                   startInterwalu[i] + int(filter_order / 2) + 2, stopInterwalu[i] + int(filter_order / 2)]
         paceAverageTable.append(element)
         print_list.append('\n')
         print print_list[-1]  #'\n'
-        print_list.append('Point number:\t %s' % int(startInterwalu[i] + int(filterOrder / 2)))
-        print print_list[-1]  #'Point number:\t %s' % int(startInterwalu[i] + int(filterOrder / 2))
+        print_list.append('Point number:\t %s' % int(startInterwalu[i] + int(filter_order / 2)))
+        print print_list[-1]  #'Point number:\t %s' % int(startInterwalu[i] + int(filter_order / 2))
         print_list.append('Distance start:\t %.2f' % distanceStart)
         print print_list[-1]  #'Distance start:\t %.2f' % distanceStart
         print_list.append('Distance stop:\t %.2f' % distanceStop)
@@ -304,53 +313,4 @@ def get_data(output_dir, fileName):
 if __name__ == '__main__':
     fileName = "/home/mati/Pulpit/xxx.gpx"
 
-    get_data(".", fileName)
-    # # fileName = sys.argv[1]
-    # # accuracyPaceDiffForIntervalSearch = sys.argv[2]
-    # # CCURACY_LICZBA_PROBEK = sys.argv[3]
-    # obliczZakresyTetna(wiek)
-    # listaWspol = parseTraining(fileName)
-    # wykresTableX, wykresTableY, totalDistance, czasy, tetno = obliczPolozenie(listaWspol)
-    # wykresTableYAverage = averagingFilter(wykresTableY)
-    # startInterwalu, stopInterwalu = szukajInterwalow(wykresTableYAverage)
-    # paceAverageTable = []
-    # print '\n_-_-_-_-_- INTERVALS _-_-_-_-_-'
-    # for i in range(0, len(startInterwalu)):
-    #     element = []
-    #     distanceStart = wykresTableX[startInterwalu[i] + int(filterOrder / 2) + 2]
-    #     distanceStop = wykresTableX[stopInterwalu[i] - int(filterOrder / 2)]
-    #     czasStart = czasy[startInterwalu[i] + int(filterOrder / 2) + 2]
-    #     czasStop = czasy[stopInterwalu[i] - int(filterOrder / 2)]
-    #     czasDiffPaceAverage = czasStop - czasStart
-    #     paceAverage = (czasDiffPaceAverage.total_seconds() / 60) / (distanceStop - distanceStart)
-    #     paceTempStr = int((paceAverage - int(paceAverage)) * 60)
-    #     if paceTempStr < 10:
-    #         paceAverageString = str(int(paceAverage)) + ':0' + str(paceTempStr)
-    #     else:
-    #         paceAverageString = str(int(paceAverage)) + ':' + str(paceTempStr)
-    #     element = [distanceStart, distanceStop, paceAverage, paceAverageString,
-    #                startInterwalu[i] + int(filterOrder / 2) + 2, stopInterwalu[i] + int(filterOrder / 2)]
-    #     paceAverageTable.append(element)
-    #     print '\n'
-    #     print 'Point number:\t %s' % int(startInterwalu[i] + int(filterOrder / 2))
-    #     print 'Distance start:\t %.2f' % distanceStart
-    #     print 'Distance stop:\t %.2f' % distanceStop
-    #     print 'Distance:\t %.2f' % (distanceStop - distanceStart)
-    #     print 'Pace average:\t %s' % paceAverageString
-    #     print '\n_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-'
-    # print '\nTotal distance:\t %.2f\n' % totalDistance
-    # # print len(startInterwalu)
-    #
-    # tetnoZakresDict = plotPace(wykresTableX, wykresTableY, paceAverageTable, tetno)
-    # if tetnoZakresDict is not None:
-    #     print '_-_-_-_-_- PULSE ZONES _-_-_-_-_-\n'
-    #     for i, x in enumerate(tetnoZakresDict):
-    #         tempText = 'Zakres' + str(i) + ': ' + str(int(tetnoZakresDict[x])) + ' %'
-    #         print tempText
-    #         # print 'Zakres%i: %.1f\x25' % (x, tetnoZakresDict[x])
-    #     print '\n_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-'
-    #
-    # # plt.plot(wykresTableYAvrage)
-    # # plt.gca().invert_yaxis()
-    # plt.savefig(fileName + '.png')
-    # plt.show()
+    get_data(".", fileName, CCURACY_LICZBA_PROBEK, accuracyPaceDiffForIntervalSearch, point_distance_minimal_between_interwalsS, filter_orderS, wiekS, zakresyTetnaProcentyS)

@@ -4,13 +4,31 @@
   <h1>Hello {{ name }}!</h1>
 {% else %}
   <form action="/upload/" method="POST" enctype="multipart/form-data">
-    {{ form.hidden_tag() }}
-    {{ form.gpx }}
+    {{ form_upload_gpx.hidden_tag() }}
+    {{ form_upload_gpx.gpx }}
     <input type="submit">
   </form>
+
+
 {% if filename %}
+<!--<form action="/upload/" method="POST">-->
+    <!--&lt;!&ndash;{{ form_params.hidden_tag() }}&ndash;&gt;-->
+    <!--{{ form_params.accuracyPaceDiffForIntervalSearch }}<br>-->
+    <!--{{ form_params.point_distance_minimal_between_interwalsS }}<br>-->
+    <!--{{ form_params.filter_orderS }}<br>-->
+    <!--{{ form_params.wiekS }}<br>-->
+    <!--{{ form_params.zakresyTetnaProcentyS }}<br>-->
+
+    <!--<input type="submit">-->
+  <!--</form>-->
 <h3>Filename {{ filename }}</h3>
 <form action="/run/" method="POST">
+    {{ form_params.ccuracy_liczba_probek }}<br>
+    {{ form_params.accuracyPaceDiffForIntervalSearch }}<br>
+    {{ form_params.point_distance_minimal_between_interwalsS }}<br>
+    {{ form_params.filter_orderS }}<br>
+    {{ form_params.wiekS }}<br>
+    {{ form_params.zakresyTetnaProcentyS }}<br>
  <input type="hidden" name=fname value={{ filename }} />
  <input type="submit" value='RUN'>
 </form>
