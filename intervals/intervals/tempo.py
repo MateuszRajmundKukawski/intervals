@@ -10,13 +10,7 @@ import numpy as np
 from xml.dom import minidom
 
 
-CCURACY_LICZBA_PROBEK = 8  # ile kolejnych probek ma byc wieksze (dla szukania startu) badz mniejsze (dla stopu) od probki aktualnie iterowanej
-accuracyPaceDiffForIntervalSearch = 1  # jakiej roznicy tempa (min / km) ma szukac
-point_distance_minimal_between_interwalsS = 10  # dla ilu kolejnych punktow olewac start / stop interwalu (jezeli jest 'dlugi rozped')
-filter_orderS = 5  # liczba probek do usrednienia, dla latwiejszego wykrywania startu / stopu
-# usredniam dane z x probek, przebieg robi sie mniej poszarpany, na wykresie sa wartosci oryginalne
-wiekS = 30
-zakresyTetnaProcentyS = [54, 63, 73, 81, 91, 100]
+
 # zakresyTetna = [40, 126, 138, 152, 163, 177, 190]
 ZAKRESY_TETNA_KOLORY = {'0': 'grey',
                       '1': 'lightgreen',
@@ -312,5 +306,12 @@ def get_data(
 
 if __name__ == '__main__':
     fileName = "/home/mati/Pulpit/xxx.gpx"
+    CCURACY_LICZBA_PROBEK = 8  # ile kolejnych probek ma byc wieksze (dla szukania startu) badz mniejsze (dla stopu) od probki aktualnie iterowanej
+    accuracyPaceDiffForIntervalSearch = 1  # jakiej roznicy tempa (min / km) ma szukac
+    point_distance_minimal_between_interwalsS = 10  # dla ilu kolejnych punktow olewac start / stop interwalu (jezeli jest 'dlugi rozped')
+    filter_orderS = 5  # liczba probek do usrednienia, dla latwiejszego wykrywania startu / stopu
+    # usredniam dane z x probek, przebieg robi sie mniej poszarpany, na wykresie sa wartosci oryginalne
+    wiekS = 30
+    zakresyTetnaProcentyS = [54, 63, 73, 81, 91, 100]
 
     get_data(".", fileName, CCURACY_LICZBA_PROBEK, accuracyPaceDiffForIntervalSearch, point_distance_minimal_between_interwalsS, filter_orderS, wiekS, zakresyTetnaProcentyS)
