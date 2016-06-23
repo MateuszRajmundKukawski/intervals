@@ -1,41 +1,16 @@
 <!doctype html>
-<title>Hello from Flask</title>
-
-  <form action="/test/" method="POST" enctype="multipart/form-data">
+<title>Intervals</title>
+{% from "_formhelpers.html" import render_field %}
+  <form action="/run/" method="POST" enctype="multipart/form-data">
+      <table>
     {{ form.hidden_tag() }}
-    {{ form.gpx }}<br>
-    {{ form.ccuracy_liczba_probek }}<br>
-    {{ form.accuracyPaceDiffForIntervalSearch }}<br>
-    {{ form.point_distance_minimal_between_interwalsS }}<br>
-    {{ form.filter_orderS }}<br>
-    {{ form.wiekS }}<br>
-    {{ form.zakresyTetnaProcentyS }}<br>
-    <input type="submit" value='RUN'>
+    {{ render_field(form.gpx) }}
+    {{ render_field(form.ccuracy_liczba_probek) }}
+    {{ render_field(form.accuracyPaceDiffForIntervalSearch) }}
+    {{ render_field(form.point_distance_minimal_between_interwalsS) }}
+    {{ render_field(form.filter_orderS) }}
+    {{ render_field(form.wiekS) }}
+    {{ render_field(form.zakresyTetnaProcentyS) }}
+          </table>
+      <input type="submit" value='RUN'>
   </form>
-
-
-<!--{% if filename %}-->
-<!--<form action="/upload/" method="POST">-->
-    <!--&lt;!&ndash;{{ form_params.hidden_tag() }}&ndash;&gt;-->
-    <!--{{ form_params.accuracyPaceDiffForIntervalSearch }}<br>-->
-    <!--{{ form_params.point_distance_minimal_between_interwalsS }}<br>-->
-    <!--{{ form_params.filter_orderS }}<br>-->
-    <!--{{ form_params.wiekS }}<br>-->
-    <!--{{ form_params.zakresyTetnaProcentyS }}<br>-->
-
-    <!--<input type="submit">-->
-  <!--</form>-->
-<!--<h3>Filename {{ filename }}</h3>-->
-<!--<form action="/run/" method="POST">-->
-    <!--{{ form_params.ccuracy_liczba_probek }}<br>-->
-    <!--{{ form_params.accuracyPaceDiffForIntervalSearch }}<br>-->
-    <!--{{ form_params.point_distance_minimal_between_interwalsS }}<br>-->
-    <!--{{ form_params.filter_orderS }}<br>-->
-    <!--{{ form_params.wiekS }}<br>-->
-    <!--{{ form_params.zakresyTetnaProcentyS }}<br>-->
- <!--<input type="hidden" name=fname value={{ filename }} />-->
- <!--<input type="submit" value='RUN'>-->
-<!--</form>-->
-
-
-<!--{% endif %}-->
